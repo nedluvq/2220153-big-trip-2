@@ -1,4 +1,4 @@
-import { render, RenderPosition} from './view/render';
+import { render, RenderPosition} from './render';
 import Filter from './view/filters';
 import Trip from './presenter/trip';
 

@@ -1,4 +1,4 @@
-import { createElement } from '../view/render';
+import { createElement } from '../render.js';
 
 const createSortTemplate = () => (
   `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
