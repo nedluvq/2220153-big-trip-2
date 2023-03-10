@@ -7,4 +7,4 @@ const tripContainer = document.querySelector('.trip-events');
 const tripPresenter = new Trip({container: tripContainer});
 
 render(new Filter(), filterContainer, RenderPosition.BEFOREEND);
-tripPresenter.init();
+tripPresenter.init(tripPresenter);
