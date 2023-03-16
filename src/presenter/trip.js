@@ -4,11 +4,11 @@ import CreateForm from '../view/create-form';
 import FormEdit from '../view/form-edit';
 import SortingView from '../view/sorting-view';
 import { render } from '../render.js';
-import {GenevaModel, ChamonixModel} from '../model';
+import GenerateModel from '../model';
 
 export default class EventsPresenter {
   constructor() {
-    this.eventsList = new EventsView(GenevaModel, ChamonixModel);
+    this.eventsList = new EventsView(GenerateModel());
   }
 
   init (tripContainer) {
