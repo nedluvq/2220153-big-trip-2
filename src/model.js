@@ -4,6 +4,38 @@ const DESCRIPTION_TEMPLATES = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
   'Aliquam id orci ut lectus varius viverra.'
 ];
+const OFFERS_TEMPLATE = [
+  {
+    id: 1,
+    type: 'add luggage',
+    price: 30
+  },
+  {
+    id: 2,
+    type: 'switch to comfort class',
+    price: 100
+  },
+  {
+    id: 3,
+    type: 'add meal',
+    price: 15
+  },
+  {
+    id: 4,
+    type: 'add luggage',
+    price: 30
+  },
+  {
+    id: 5,
+    type: 'choose seats',
+    price: 15
+  },
+  {
+    id: 6,
+    type: 'travel by train',
+    price: 40
+  }
+];
 const PRICE_BOUNDS = {
   MIN: 100,
   MAX: 500,
@@ -35,15 +67,23 @@ const getRandomElement = (examplesArray) => {
 };
 
 
-const generatePointModel = () => ({
-  price: getRandomInt(PRICE_BOUNDS.MAX),
-  dateFrom: getRandomElement(DAYS_FROM_EXAMPLE),
-  dateTo: getRandomElement(DAYS_TO_EXAMPLE),
-  favorite: Boolean(getRandomInt(1)),
-  pictures: `http://picsum.photos/248/152?r=${getRandomInt(20)}`,
-  description:getRandomElement(DESCRIPTION_TEMPLATES),
-  city: getRandomElement(CITY_NAMES),
-  offers: getRandomElement(POINT_TYPES) //Не совсем понимаю, как нужно реализовать логику offers
-});
+const generatePointModel = () => (
+  {
+    price: getRandomInt(PRICE_BOUNDS.MAX),
+    dateFrom: getRandomElement(DAYS_FROM_EXAMPLE),
+    dateTo: getRandomElement(DAYS_TO_EXAMPLE),
+    favorite: Boolean(getRandomInt(1)),
+    pictures: `http://picsum.photos/248/152?r=${getRandomInt(20)}`,
+    description:getRandomElement(DESCRIPTION_TEMPLATES),
+    city: getRandomElement(CITY_NAMES),
+    pointType: getRandomElement(POINT_TYPES),
+    offers: getRandomElement(OFFERS_TEMPLATE)
 
-export default generatePointModel;
+  });
+
+export default class GenerateModel {
+  getModel() {
+    this.element = generatePointModel();
+    return this.element;
+  }
+}
