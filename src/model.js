@@ -1,39 +1,49 @@
-const firstTimeModel = {
-  name,
-  timeFrom: '10:30',
-  timeTo: '11:00',
-  timeTotal: '30M',
-  price: '20$',
-  city: 'Geneva',
-  offers: {
-    addLuggagePrice: '30€ ',
-    switchToComfortPrice: '100€',
-    addMealPrice: '15€',
-    chooseSeatsPrice: '5€',
-    anotherWayPrice: '40€'
-  },
-  favorite: true,
-  description: 'Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.',
-  pictures: ['http://picsum.photos/248/152?r=1','http://picsum.photos/248/152?r=2','http://picsum.photos/248/152?r=3'],
+const POINT_TYPES = ['taxi', 'airplane','car','hotel check-in','bank'];
+const CITY_NAMES = ['Amsterdam','Chamonix','Geneva'];
+const DESCRIPTION_TEMPLATES = [
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+  'Aliquam id orci ut lectus varius viverra.'
+];
+const PRICE_BOUNDS = {
+  MIN: 100,
+  MAX: 500,
+};
+const DAYS_FROM_EXAMPLE = [
+  '10:30',
+  '12:25',
+  '14:30',
+  '16:20',
+  '14:20',
+  '16:00',
+];
+const DAYS_TO_EXAMPLE = [
+  '11:00',
+  '13:35',
+  '16:05',
+  '17:00',
+  '13:00',
+  '19:00'
+];
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+const getRandomElement = (examplesArray) => {
+  const element = examplesArray[getRandomInt(examplesArray.length)];
+  return element;
 };
 
-const secondTimeModel = {
-  name,
-  timeFrom: '12:25',
-  timeTo: '13:35',
-  timeTotal: '01H 10M',
-  price: '160$',
-  city: 'Chamonix',
-  offers: {
-    addLuggagePrice: '50€ ',
-    switchToComfortPrice: '80€',
-    addMealPrice: '25€',
-    chooseSeatsPrice: '15€',
-    anotherWayPrice: '-20€'
-  },
-  favorite: false,
-  description: 'Chamonix-Mont-Blanc (usually given to Chamonix) is a resort town in France, close to the border with Switzerland and Italy. It is located at the foot of Mont Blanc, the highest peak in the Alps.',
-  pictures: ['http://picsum.photos/248/152?r=4','http://picsum.photos/248/152?r=5','http://picsum.photos/248/152?r=6'],
-};
 
-export default {firstTimeModel, secondTimeModel};
+const generatePointModel = () => ({
+  price: getRandomInt(PRICE_BOUNDS.MAX),
+  dateFrom: getRandomElement(DAYS_FROM_EXAMPLE),
+  dateTo: getRandomElement(DAYS_TO_EXAMPLE),
+  favorite: Boolean(getRandomInt(1)),
+  pictures: `http://picsum.photos/248/152?r=${getRandomInt(20)}`,
+  description:getRandomElement(DESCRIPTION_TEMPLATES),
+  city: getRandomElement(CITY_NAMES),
+  offers: getRandomElement(POINT_TYPES) //Не совсем понимаю, как нужно реализовать логику offers
+});
+
+export default generatePointModel;
