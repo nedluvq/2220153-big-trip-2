@@ -1,3 +1,4 @@
+
 const POINT_TYPES = ['taxi', 'airplane','car','hotel check-in','bank'];
 const CITY_NAMES = ['Amsterdam','Chamonix','Geneva'];
 const DESCRIPTION_TEMPLATES = [
