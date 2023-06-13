@@ -1,11 +1,12 @@
-import TripEventsView from '../view/events-view.js';
+import TripEventsView from '../view/trip-events.js';
 import SortView from '../view/sort.js';
 import EmptyEventsView from '../view/empty-events-view.js';
+import LoadingView from '../view/loading-view.js';
 import EventPresenter from './event-presenter.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
-import LoadingView from '../view/loading-view.js';
-import { SORT_TYPES, UPDATE_TYPES, USER_ACTIONS, FILTER_TYPES, sortByPrice, sortByDuration, sortByDate, filter } from '../utils.js';
+import { SORT_TYPES, UPDATE_TYPES, USER_ACTIONS, FILTER_TYPES, sortByPrice, sortByDuration, sortByDate, filter, TIME_LIMIT } from '../utils.js';
 import NewEventPresenter from './new-event-presenter';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
 
 export default class TripEventsPresenter {
   #rootContainer;
@@ -20,6 +21,7 @@ export default class TripEventsPresenter {
   #newEventPresenter;
   #currentSortType = SORT_TYPES.DEFAULT;
   #filterType = FILTER_TYPES.EVERYTHING;
+  #uiBlocker = new UiBlocker(TIME_LIMIT.LOWER_LIMIT, TIME_LIMIT.UPPER_LIMIT);
 
   constructor(rootContainer, eventsModel, filterModel) {
     this.#rootContainer = rootContainer;
@@ -37,7 +39,6 @@ export default class TripEventsPresenter {
   get destinations() {
     return this.#eventsModel.destinations;
   }
-
 
   init = () => {
     this.#render();
@@ -61,7 +62,7 @@ export default class TripEventsPresenter {
   createEvent = (callback) => {
     this.#currentSortType = SORT_TYPES.DEFAULT;
     this.#filterModel.setFilter(UPDATE_TYPES.MAJOR, FILTER_TYPES.EVERYTHING);
-    this.#newEventPresenter.init(callback);
+    this.#newEventPresenter.init(callback, this.offers, this.destinations);
   };
 
   #renderEvents = (events) => {
@@ -76,24 +77,36 @@ export default class TripEventsPresenter {
   };
 
   #actionHandler = (actionType, updateType, update) => {
+    this.#uiBlocker.block();
     switch (actionType) {
       case USER_ACTIONS.UPDATE:
-        this.#eventsModel.updateEvent(updateType, update);
+        this.#eventPresenter.get(update.id).setSaving();
+        try {
+          this.#eventsModel.updateEvent(updateType, update);
+        } catch (err) {
+          this.#eventPresenter.get(update.id).setAborting();
+        }
         break;
       case USER_ACTIONS.ADD:
-        this.#eventsModel.addEventt(updateType, update);
+        this.#newEventPresenter.setSaving();
+        try {
+          this.#eventsModel.addEvent(updateType, update);
+        } catch (err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
       case USER_ACTIONS.DELETE:
-        this.#eventsModel.deleteEvent(updateType, update);
-        break;
-      case UPDATE_TYPES.INIT:
-        this.#isLoading = false;
-        remove(this.#loadingComponent);
-        this.#render();
+        this.#eventPresenter.get(update.id).setDeleting();
+        try {
+          this.#eventsModel.deleteEvent(updateType, update);
+        } catch (err) {
+          this.#eventPresenter.get(update.id).setAborting();
+        }
         break;
       default:
         throw new Error(`Action Type ${actionType} is undefined.`);
     }
+    this.#uiBlocker.unblock();
   };
 
   #modelEventHandler = (updateType, data) => {
@@ -107,6 +120,11 @@ export default class TripEventsPresenter {
         break;
       case UPDATE_TYPES.MAJOR:
         this.#clear({ resetSortType: true });
+        this.#render();
+        break;
+      case UPDATE_TYPES.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#render();
         break;
       default:
