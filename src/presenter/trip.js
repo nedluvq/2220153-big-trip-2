@@ -1,5 +1,5 @@
 import TripEventsView from '../view/events-view.js';
-import RoutePointView from '../view/route-point.js';
+import RoutePointView from '../view/point-view.js';
 import FormEditView from '../view/form-edit.js';
 import { render } from '../render.js';
 
