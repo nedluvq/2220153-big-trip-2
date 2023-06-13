@@ -1,68 +1,75 @@
-import { render, remove, replace } from '../framework/render.js';
-import FilterView from '../view/filter.js';
-import { filter, FILTER_TYPES, UPDATE_TYPES } from '../utils.js';
+import { remove, render, RenderPosition } from '../framework/render.js';
+import EditingFormView from '../view/form-edit.js';
+import { USER_ACTIONS, UPDATE_TYPES } from '../utils.js';
 
-export default class FilterPresenter {
-  #filterContainer;
-  #filterModel;
-  #eventsModel;
-  #filterComponent;
+export default class NewEventPresenter {
+  #eventsListContainer = null;
+  #changeData = null;
+  #editComponent = null;
+  #destroyCallback = null;
+  #offers = null;
+  #destinations = null;
 
-  constructor(filterContainer, filterModel, eventsModel) {
-    this.#filterContainer = filterContainer;
-    this.#filterModel = filterModel;
-    this.#eventsModel = eventsModel;
-    this.#eventsModel.addObserver(this.#ModelEventHandler);
-    this.#filterModel.addObserver(this.#ModelEventHandler);
+  constructor(eventsListContainer, changeData) {
+    this.#eventsListContainer = eventsListContainer;
+    this.#changeData = changeData;
   }
 
-  get filters() {
-    const events = this.#eventsModel.events;
+  init = (callback, offers, destinations) => {
+    this.#offers = offers;
+    this.#destinations = destinations;
+    this.#destroyCallback = callback;
 
-    return [
-      {
-        type: FILTER_TYPES.EVERYTHING,
-        name: 'everything',
-        count: filter[FILTER_TYPES.EVERYTHING](events).length,
-      },
-      {
-        type: FILTER_TYPES.FUTURE,
-        name: 'future',
-        count: filter[FILTER_TYPES.FUTURE](events).length,
-      },
-      {
-        type: FILTER_TYPES.PAST,
-        name: 'past',
-        count: filter[FILTER_TYPES.PAST](events).length,
-      },
-    ];
-  }
-
-  init = () => {
-    const filters = this.filters;
-    const prevFilterComponent = this.#filterComponent;
-
-    this.#filterComponent = new FilterView(filters, this.#filterModel.filter);
-    this.#filterComponent.setChangeHandler(this.#filterChangeHandler);
-
-    if (!prevFilterComponent) {
-      render(this.#filterComponent, this.#filterContainer);
+    if (this.#editComponent !== null) {
       return;
     }
 
-    replace(this.#filterComponent, prevFilterComponent);
-    remove(prevFilterComponent);
+    this.#editComponent = new EditingFormView(undefined, this.#offers, this.#destinations);
+    this.#editComponent.setSaveHandler(this.#saveHandler);
+    this.#editComponent.setDeleteHandler(this.#deleteHandler);
+    this.#editComponent.setRollDownHandler(this.#clickHandler);
+    render(this.#editComponent, this.#eventsListContainer, RenderPosition.AFTERBEGIN);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
-  #ModelEventHandler = () => {
-    this.init();
-  };
-
-  #filterChangeHandler = (filterType) => {
-    if (this.#filterModel.filter === filterType) {
+  destroy = () => {
+    if (this.#editComponent === null) {
       return;
     }
 
-    this.#filterModel.setFilter(UPDATE_TYPES.MAJOR, filterType);
+    this.#destroyCallback?.();
+    remove(this.#editComponent);
+    this.#editComponent = null;
+
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
+
+  setSaving = () => this.#editComponent.updateElement({ isDisabled: true, isSaving: true });
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#editComponent.updateElement({ isDisabled: false, isSaving: false, isDeleting: false });
+    };
+
+    this.#editComponent.shake(resetFormState);
+  };
+
+  #saveHandler = (event) => this.#changeData(USER_ACTIONS.ADD, UPDATE_TYPES.MINOR, event);
+
+  #deleteHandler = () => {
+    this.destroy();
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
+
+  #clickHandler = () => {
+    this.destroy();
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
+
+  #escKeyDownHandler = (e) => {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      e.preventDefault();
+      this.destroy();
+    }
   };
 }

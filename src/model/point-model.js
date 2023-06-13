@@ -1,5 +1,6 @@
 import { UPDATE_TYPES } from '../utils.js';
 import Observable from '../framework/observable.js';
+import dayjs from 'dayjs';
 
 export default class EventsModel extends Observable {
   #eventsApiService = null;
@@ -45,8 +46,9 @@ export default class EventsModel extends Observable {
       throw new Error('Can\'t update unexisting point');
     }
     try {
-      const response = await this.#eventsApiService.updatePoint(update);
+      const response = await this.#eventsApiService.updateEvent(update);
       const updated = this.#adaptToClient(response);
+
       this._notify(updateType, update);
       this.#events = [
         ...this.#events.slice(0, index),
@@ -58,16 +60,52 @@ export default class EventsModel extends Observable {
       throw new Error('Can\'t update task');
     }
   };
+
   addEvent = (updateType, update) => {
+    try {
+      const response = this.#eventsApiService.addEvent(update);
+      const newEvent = this.#adaptToClient(response);
+      this.#events = [
+        newEvent,
+        ...this.#events,
+      ];
+      this._notify(updateType, update);
+    } catch (err) {
+      throw new Error('Can\'t add event');
+    }
+  };
+
+  deleteEvent = async (updateType, update) => {
+    const index = this.#events.findIndex((event) => event.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting point');
+    }
+
+    this.#events = [
+      ...this.#events.slice(0, index),
+      ...this.#events.slice(index + 1),
+    ];
+
     this._notify(updateType);
+    try {
+      await this.#eventsApiService.deleteEvent(update);
+      this.#events = [
+        ...this.#events.slice(0, index),
+        ...this.#events.slice(index + 1),
+      ];
+      this._notify(updateType);
+    } catch (err) {
+      throw new Error('Can\'t delete event');
+    }
   };
 
   #adaptToClient = (event) => {
     const adapted = {
       ...event,
       basePrice: event['base_price'],
-      startDate: event['date_from'],
-      endDate: event['date_to'],
+      dateFrom: dayjs(event['date_from']),
+      dateTo: dayjs(event['date_to']),
       isFavorite: event['is_favorite'],
     };
 
