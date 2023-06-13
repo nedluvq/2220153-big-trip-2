@@ -15,7 +15,6 @@ const tripMainElement = document.querySelector('.trip-main');
 const navigationElement = headerElement.querySelector('.trip-controls__navigation');
 const filtersElement = headerElement.querySelector('.trip-controls__filters');
 const contentElement = mainElement.querySelector('.trip-events');
-
 const filterModel = new FilterModel();
 const eventsModel = new PointsModel();
 const routePresenter = new TripEventsPresenter(contentElement, eventsModel, filterModel);
