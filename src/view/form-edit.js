@@ -291,4 +291,5 @@ export default class EditingFormView extends AbstractStatefulView {
     delete event.isDeleting;
     return event;
   };
+
 }
