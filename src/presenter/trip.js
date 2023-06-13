@@ -49,13 +49,13 @@ export default class TripEventsPresenter {
     );
     evtPresenter.init(event);
     this.#eventPresenter.set(event.id, evtPresenter);
+
   };
 
   #clearEventstList = () => {
     this.#eventPresenter.forEach((presenter) => presenter.destroy());
     this.#eventPresenter.clear();
   };
-
   #changePointHandler = (updateEvt) => {
     this.#events = update(this.#events, updateEvt);
     this.#initialEvents = update(this.#initialEvents, updateEvt);

@@ -77,4 +77,6 @@ const generateFilter = (events) => Object.entries(filter).map(
   })
 );
 
+
 export { generatePoints, generateFilter, destinations, offersByType, OFFERS, DESTINATION_NAMES };
+
