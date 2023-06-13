@@ -1,5 +1,5 @@
 
-import { getRandomInteger, getRandomElement } from '../utils.js';
+import { getRandomInteger, getRandomElement, filter } from '../utils';
 import dayjs from 'dayjs';
 
 const POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
@@ -59,4 +59,11 @@ const generatePoints = (id) => {
   };
 };
 
-export {generatePoints, destinations, offersByType };
+const generateFilter = (events) => Object.entries(filter).map(
+  ([name, eventsFilter]) => ({
+    name,
+    count: eventsFilter(events).length
+  })
+);
+
+export { generatePoints, generateFilter, destinations, offersByType, DESTINATION_NAMES };
