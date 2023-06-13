@@ -1,69 +1,63 @@
 import TripEventsView from '../view/events-view.js';
-import RoutePointView from '../view/point-view.js';
-import FormEditView from '../view/form-edit.js';
-import EmptyEventsView from '../view/empty-events-view.js';
 import SortView from '../view/sort.js';
-import { render, RenderPosition } from '../render.js';
+import EmptyEventsView from '../view/empty-events-view.js';
+import EventPresenter from './event-presenter.js';
+import { render } from '../framework/render';
+import { update } from '../utils';
+
 
 export default class TripEventsPresenter {
-  constructor() {
-    this._rootContainer = null;
-    this._eventsModel = null;
-    this._events = null;
-    this._eventList = new TripEventsView();
+  #rootContainer = null;
+  #eventsModel = null;
+  #events = null;
+  #eventsList = new TripEventsView();
+  #sortComponent = new SortView();
+  #emptyList = new EmptyEventsView();
+  #eventPresenter = new Map();
+
+  constructor(rootContainer, eventsModel) {
+    this.#rootContainer = rootContainer;
+    this.#eventsModel = eventsModel;
   }
 
-  _renderEvent(event) {
-    const eventComponent = new RoutePointView(event);
-    const eventEditComponent = new FormEditView(event);
-
-
-    const editToEvent = () => {
-      this._eventList.element.replaceChild(eventComponent.element, eventEditComponent.element);
-    };
-
-    const eventToEdit = () => {
-      this._eventList.element.replaceChild(eventEditComponent.element, eventComponent.element);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        editToEvent();
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
-    };
-
-    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      eventToEdit();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
-
-    eventEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      editToEvent();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    eventEditComponent.element.querySelector('.event__save-btn').addEventListener('click', (evt) => {
-      evt.preventDefault();
-      editToEvent();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    render(eventComponent, this._eventList.element);
+  init = () => {
+    this.#events = [...this.#eventsModel.events];
+    this.#renderEventsList();
   }
 
-  init(tripContainer, pointsModel) {
-    this._rootContainer = tripContainer;
-    this._eventsModel = pointsModel;
-    this._events = [...this._eventsModel.events];
-    render(this._eventList, this._rootContainer);
-    this._events.forEach((event) => this._renderEvent(event));
-    if (this._events.length) {
-      render(new SortView(), this._rootContainer, RenderPosition.AFTERBEGIN);
-      this._events.forEach((event) => this._renderEvent(event));
+  #renderEventsList = () => {
+    if (this.#events.length) {
+      this.#renderSort();
+      render(this.#eventsList, this.#rootContainer);
+      this.#renderEvents();
     } else {
-      render(new EmptyEventsView(), this._rootContainer);
+      this.#renderEmptyList();
     }
   }
+
+  #renderEvents = () => {
+    this.#events.array.forEach((event) => this.#renderEvent(event));
+  }
+
+  #renderEvent = (event) => {
+    const evtPresenter = new EventPresenter(
+      this.#emptyList.element,
+      this.#changePointHandler,
+      this.#switchModeHandler
+    );
+    evtPresenter.init(event);
+    this.#eventPresenter.set(event.id, evtPresenter);
+  }
+  
+  #changePointHandler = (updateEvt) => {
+    this.#events = update(this.#events, updateEvt);
+    this.#eventPresenter.get(updateEvt.id).init(updateEvt);
+  }
+
+  #switchModeHandler = () => {
+    this.#eventPresenter.forEach((presenter) => presenter.resetView());
+  };
+
+  #renderSort = () => render(this.#sortComponent, this.#rootContainer);
+  #renderEmptyList = () => render(this.#emptyList, this.#rootContainer)
 }
