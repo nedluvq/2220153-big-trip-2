@@ -1,26 +1,41 @@
-import FilterView from './view/filters.js';
-import TripEventsPresenter from './presenter/trip.js';
-import MenuView from './view/main-view.js';
-import PointsModel from './model/point-model.js';
-import FormCreateView from './view/create-form.js';
-import TripInfoView from './view/trip-info-view.js';
-import { render, RenderPosition } from './render.js';
+import TripEventsPresenter from './presenter/trip';
+import MenuView from './view/menu';
+import PointsModel from './model/point-model';
+import TripInfoView from './view/trip-info-view';
+import NewEventButtonView from './view/new-event-btn-view';
+import FilterPresenter from './presenter/filter-presenter.js';
+import FilterModel from './model/filter-model';
+import { render, RenderPosition } from './framework/render';
 
 
 const headerElement = document.querySelector('.page-header');
 const mainElement = document.querySelector('.page-main');
+
 const tripMainElement = document.querySelector('.trip-main');
-const navigation = headerElement.querySelector('.trip-controls__navigation');
-const filters = headerElement.querySelector('.trip-controls__filters');
-const content = mainElement.querySelector('.trip-events');
-tripMainElement.querySelector('.trip-main__event-add-btn')
-  .addEventListener('click', () => render(new FormCreateView(), content, RenderPosition.AFTERBEGIN));
+const navigationElement = headerElement.querySelector('.trip-controls__navigation');
+const filtersElement = headerElement.querySelector('.trip-controls__filters');
+const contentElement = mainElement.querySelector('.trip-events');
 
-const routePresenter = new TripEventsPresenter(contentElement, eventsModel);
+const filterModel = new FilterModel();
 const eventsModel = new PointsModel();
+const routePresenter = new TripEventsPresenter(contentElement, eventsModel, filterModel);
+const filterPresenter = new FilterPresenter(filtersElement, filterModel, eventsModel);
+const newEventButtonComponent = new NewEventButtonView();
 
+
+const closeNewEventFormHandler = () => {
+  newEventButtonComponent.element.disabled = false;
+};
+
+const openNewEventFormHandler = () => {
+  routePresenter.createEvent(closeNewEventFormHandler);
+  newEventButtonComponent.element.disabled = true;
+};
+
+render(newEventButtonComponent, tripMainElement);
+newEventButtonComponent.setClickHandler(openNewEventFormHandler);
+
+filterPresenter.init();
 routePresenter.init();
-
-render(new MenuView(), navigation);
+render(new MenuView(), navigationElement);
 render(new TripInfoView(), tripMainElement, RenderPosition.AFTERBEGIN);
-render(new FilterView(), filters);
