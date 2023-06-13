@@ -16,9 +16,9 @@ const content = mainElement.querySelector('.trip-events');
 tripMainElement.querySelector('.trip-main__event-add-btn')
   .addEventListener('click', () => render(new FormCreateView(), content, RenderPosition.AFTERBEGIN));
 
-const routePresenter = new TripEventsPresenter();
+const routePresenter = new TripEventsPresenter(contentElement, eventsModel);
 const eventsModel = new PointsModel();
 render(new MenuView(), navigation);
 render(new TripInfoView(), tripMainElement, RenderPosition.AFTERBEGIN);
 render(new FilterView(), filters);
-routePresenter.init(content, eventsModel);
+routePresenter.init();
