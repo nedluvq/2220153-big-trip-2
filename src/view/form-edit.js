@@ -314,4 +314,5 @@ export default class EditingFormView extends AbstractStatefulView {
     delete event.availableOffersId;
     return event;
   };
+
 }

@@ -44,6 +44,7 @@ const filter = {
 };
 
 
+
 const sortByPrice = (a, b) => b.basePrice - a.basePrice;
 const sortByDuration = (a, b) => {
   const durationA = Math.ceil(a.endDate.diff(a.startDate, 'minute', true));
