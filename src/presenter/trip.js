@@ -48,7 +48,7 @@ export default class TripEventsPresenter {
     evtPresenter.init(event);
     this.#eventPresenter.set(event.id, evtPresenter);
   }
-
+  
   #changePointHandler = (updateEvt) => {
     this.#events = update(this.#events, updateEvt);
     this.#eventPresenter.get(updateEvt.id).init(updateEvt);

@@ -50,7 +50,6 @@ const update = (items, updatedItem) =>
     }
     return item;
   });
-
 export {
   getRandomInteger,
   getRandomElement,
