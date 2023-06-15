@@ -26,13 +26,13 @@ const createSortingTemplate = () => (
 );
 
 export default class SortingView {
-  getTemplate () {
+  get Template () {
     return createSortingTemplate;
   }
 
-  getElement() {
+  get Element() {
     if (!this.element){
-      this.element = createElement(this.getTemplate());
+      this.element = createElement(this.get Template());
     }
 
     return this.element;
