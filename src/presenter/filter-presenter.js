@@ -1,5 +1,5 @@
 import { render, remove, replace } from '../framework/render.js';
-import FilterView from '../view/filter.js';
+import FilterView from '../view/filters.js';
 import { filter, FILTER_TYPES, UPDATE_TYPES } from '../utils.js';
 
 export default class FilterPresenter {
