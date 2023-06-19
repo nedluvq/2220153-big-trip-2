@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view';
 
+
 const generateFiltersEvents = ({ type, name, count }, filterType) =>
   `<div class="trip-filters__filter">
     <input id="filter-${name}" class="trip-filters__filter-input  visually-hidden"
@@ -30,7 +31,6 @@ export default class FilterView extends AbstractView {
   get template() {
     return createFilterTemplate(this.#filters, this.#currentFilter);
   };
-
 
   setChangeHandler = (callback) => {
     this._callback.change = callback;
